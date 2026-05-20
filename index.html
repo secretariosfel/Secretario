@@ -1,0 +1,836 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --c1:#6C63FF;--c1l:#EEF0FF;--c1d:#4B44CC;
+  --c2:#FF6584;--c2l:#FFF0F3;
+  --c3:#43C6AC;--c3l:#E8FAF7;
+  --c4:#FFB347;--c4l:#FFF7EC;
+  --c5:#A78BFA;--c5l:#F5F0FF;
+  --rad:10px;--rad-lg:14px;
+}
+body{font-family:var(--font-sans);color:var(--color-text-primary);background:var(--color-background-tertiary)}
+input,select,textarea{font-size:13px;padding:7px 10px;border:1.5px solid var(--color-border-tertiary);border-radius:var(--rad);background:var(--color-background-primary);color:var(--color-text-primary);width:100%;transition:border .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--c1)}
+textarea{resize:vertical;min-height:52px}
+input[type=checkbox]{width:16px;height:16px;accent-color:var(--c1);cursor:pointer;flex-shrink:0}
+button{font-size:13px;padding:7px 14px;border-radius:var(--rad);border:none;background:var(--color-background-secondary);color:var(--color-text-primary);cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:opacity .15s,transform .1s;white-space:nowrap}
+button:hover{opacity:.85}
+button:active{transform:scale(.98)}
+.bp{background:linear-gradient(135deg,var(--c1),var(--c5))!important;color:#fff!important}
+.bg{background:linear-gradient(135deg,var(--c3),#1D9E75)!important;color:#fff!important}
+.br{background:linear-gradient(135deg,var(--c2),#D4537E)!important;color:#fff!important}
+.bw{background:linear-gradient(135deg,var(--c4),#E8960A)!important;color:#fff!important}
+.card{background:var(--color-background-primary);border-radius:var(--rad-lg);border:1.5px solid var(--color-border-tertiary);padding:1rem 1.25rem;margin-bottom:.75rem}
+.fld{display:flex;flex-direction:column;gap:3px;margin-bottom:8px}
+.fld label{font-size:11px;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.04em;font-weight:500}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.tabs{display:flex;gap:3px;margin-bottom:1rem;border-bottom:2px solid var(--color-border-tertiary);flex-wrap:wrap}
+.tab{padding:7px 13px;font-size:12px;background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;color:var(--color-text-secondary);border-radius:0;transition:color .15s}
+.tab.on{color:var(--c1);font-weight:500;border-bottom-color:var(--c1)}
+.tab:hover:not(.on){color:var(--color-text-primary)}
+.badge{font-size:10px;padding:2px 8px;border-radius:20px;white-space:nowrap;font-weight:500}
+.bb{background:var(--c1l);color:var(--c1d)}
+.bg2{background:var(--c3l);color:#0F6E56}
+.ba{background:var(--c4l);color:#854F0B}
+.br2{background:var(--c2l);color:#993556}
+.bp2{background:var(--c5l);color:#534AB7}
+.bgr{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.metric{background:var(--color-background-secondary);border-radius:var(--rad);padding:12px;border:1.5px solid var(--color-border-tertiary)}
+.metric .v{font-size:24px;font-weight:500;margin-top:3px}
+.metric .l{font-size:11px;color:var(--color-text-secondary);font-weight:500}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;margin:.75rem 0}
+table{width:100%;font-size:12px;border-collapse:collapse}
+th{font-size:10px;font-weight:600;color:var(--color-text-secondary);text-align:left;padding:6px 8px;border-bottom:1.5px solid var(--color-border-tertiary);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+td{padding:6px 8px;border-bottom:1px solid var(--color-border-tertiary);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.alert{padding:9px 13px;border-radius:var(--rad);font-size:13px;margin-bottom:.75rem}
+.aok{background:var(--c3l);color:#0F6E56;border:1.5px solid #9FE1CB}
+.awarn{background:var(--c4l);color:#854F0B;border:1.5px solid #FAC775}
+.aerr{background:var(--c2l);color:#993556;border:1.5px solid #ED93B1}
+.pub-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--color-border-tertiary)}
+.pub-row:last-child{border-bottom:none}
+.avatar{width:32px;height:32px;border-radius:50%;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sep{height:1.5px;background:var(--color-border-tertiary);margin:12px 0}
+</style>
+
+<div id="root" style="padding:.75rem 0"></div>
+
+<script>
+const MESES=['Septiembre','Octubre','Noviembre','Diciembre','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto'];
+const MK=['sep','oct','nov','dic','ene','feb','mar','abr','may','jun','jul','ago'];
+const NG=8;
+const HOY=new Date();
+const MES_ACT=HOY.getMonth()<8?HOY.getMonth()+4:HOY.getMonth()-8;
+const AVATARCOLORS=[
+  ['#EEF0FF','#4B44CC'],['#FFF0F3','#993556'],['#E8FAF7','#0F6E56'],
+  ['#FFF7EC','#854F0B'],['#F5F0FF','#534AB7'],['#E1F5EE','#085041'],
+  ['#FAECE7','#712B13'],['#FBEAF0','#72243E']
+];
+
+function initState(){
+  const grupos=[];
+  for(let i=0;i<NG;i++) grupos.push({id:i,nombre:'Grupo '+(i+1),superintendente:'',auxiliar:'',pubs:[]});
+  return{
+    sesion:null,año:'2025',
+    usuarios:[
+      {id:'sec',rol:'secretario',nombre:'Elkin Gutierrez',pin:'1234'},
+      {id:'u1',rol:'super',nombre:'Daniel Ricaurte',grupoId:0,pin:'1111'},
+      {id:'u2',rol:'super',nombre:'Elkin Gutierrez',grupoId:1,pin:'1234'},
+      {id:'u3',rol:'super',nombre:'Luis Garcia',grupoId:2,pin:'3333'},
+      {id:'u4',rol:'super',nombre:'Ronal Salcedi',grupoId:3,pin:'4444'},
+      {id:'u5',rol:'super',nombre:'Andres Rodriguez',grupoId:4,pin:'5555'},
+      {id:'u6',rol:'super',nombre:'Ricardo Angulo',grupoId:5,pin:'6666'},
+      {id:'u7',rol:'super',nombre:'Diego Gutierrez',grupoId:6,pin:'7777'},
+      {id:'u8',rol:'super',nombre:'Jose Zabaleta',grupoId:7,pin:'8888'},
+    ],
+    grupos,registros:{},mesesCerrados:{},confidencial:{}
+  };
+}
+
+let S;
+try{const r=localStorage.getItem('sfv5');S=r?JSON.parse(r):initState();}catch(e){S=initState();}
+function save(){try{localStorage.setItem('sfv5',JSON.stringify(S));}catch(e){}}
+
+const root=document.getElementById('root');
+let adminTab='dashboard',editGrupo=0,mesTab=MES_ACT,grupoMes=0,editPubGi=null,editPubPi=null;
+
+function render(){!S.sesion?renderLogin():S.sesion.rol==='secretario'?renderAdmin():renderSuper();}
+
+/* ══ LOGIN ══════════════════════════════════════════════════════ */
+function renderLogin(){
+  root.innerHTML=`
+  <div style="max-width:340px;margin:2rem auto">
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#6C63FF,#A78BFA);margin:0 auto 12px;display:flex;align-items:center;justify-content:center">
+        <i class="ti ti-book-2" aria-hidden="true" style="font-size:28px;color:#fff"></i>
+      </div>
+      <div style="font-size:18px;font-weight:500">Congregación San Felipe</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-top:3px">Testigos de Jehová</div>
+    </div>
+    <div class="card">
+      <div class="fld"><label>Usuario</label>
+        <select id="lUser" style="font-size:13px">
+          ${S.usuarios.map(u=>`<option value="${u.id}">${u.nombre}${u.rol==='secretario'?' (Secretario)':' — '+(S.grupos[u.grupoId]||{nombre:'?'}).nombre}</option>`).join('')}
+        </select>
+      </div>
+      <div class="fld" style="margin-bottom:12px"><label>PIN</label>
+        <input type="password" id="lPin" placeholder="••••" maxlength="6">
+      </div>
+      <div id="lErr" style="display:none;font-size:12px;color:#993556;margin-bottom:8px;padding:6px 10px;background:var(--c2l);border-radius:var(--rad)"></div>
+      <button class="bp" style="width:100%;justify-content:center;padding:10px" onclick="doLogin()">
+        <i class="ti ti-login" aria-hidden="true"></i> Ingresar
+      </button>
+    </div>
+    <div style="font-size:11px;color:var(--color-text-secondary);text-align:center;margin-top:8px">
+      PINs: Secretario 1234 · Grupo1 1111 · G2 1234 · G3 3333 · G4 4444 · G5 5555 · G6 6666 · G7 7777 · G8 8888
+    </div>
+  </div>`;
+  document.getElementById('lPin').onkeydown=e=>{if(e.key==='Enter')doLogin();};
+}
+function doLogin(){
+  const uid=document.getElementById('lUser').value;
+  const pin=document.getElementById('lPin').value;
+  const u=S.usuarios.find(u=>u.id===uid);
+  if(!u||u.pin!==pin){
+    const el=document.getElementById('lErr');
+    el.textContent='PIN incorrecto. Inténtalo de nuevo.';el.style.display='block';return;
+  }
+  S.sesion=u;render();
+}
+function logout(){S.sesion=null;save();render();}
+
+/* ══ ADMIN SHELL ════════════════════════════════════════════════ */
+function renderAdmin(){
+  const tabs=[
+    ['dashboard','ti-layout-dashboard','Panel'],
+    ['grupos','ti-users','Grupos'],
+    ['mensual','ti-calendar-month','Mensual'],
+    ['faltantes','ti-alert-circle','Sin informe'],
+    ['precursores','ti-run','Precursores'],
+    ['historico','ti-history','Histórico'],
+    ['confidencial','ti-lock','Confidencial'],
+    ['config','ti-settings','Config'],
+  ];
+  root.innerHTML=`
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;padding-bottom:.75rem;border-bottom:1.5px solid var(--color-border-tertiary)">
+    <div>
+      <div style="font-size:15px;font-weight:500;display:flex;align-items:center;gap:8px">
+        <span style="background:linear-gradient(135deg,var(--c1),var(--c5));-webkit-background-clip:text;-webkit-text-fill-color:transparent">Congregación San Felipe</span>
+      </div>
+      <div style="font-size:11px;color:var(--color-text-secondary)">Secretario: ${S.sesion.nombre}</div>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center">
+      <select style="width:auto;font-size:12px" onchange="S.año=this.value;renderAdmin()">
+        <option value="2024" ${S.año==='2024'?'selected':''}>2024–25</option>
+        <option value="2025" ${S.año==='2025'?'selected':''}>2025–26</option>
+        <option value="2026" ${S.año==='2026'?'selected':''}>2026–27</option>
+      </select>
+      <button class="bg" onclick="save();flash('Guardado.','ok')" style="padding:6px 10px"><i class="ti ti-device-floppy" aria-hidden="true"></i></button>
+      <button onclick="logout()" style="padding:6px 10px;color:#993556"><i class="ti ti-logout" aria-hidden="true"></i></button>
+    </div>
+  </div>
+  <div id="msgBox" style="display:none"></div>
+  <div class="tabs">${tabs.map(([id,ic,lbl])=>`<button class="tab ${adminTab===id?'on':''}" onclick="adminTab='${id}';renderAdmin()"><i class="ti ${ic}" aria-hidden="true" style="font-size:13px;vertical-align:-1px;margin-right:3px"></i>${lbl}</button>`).join('')}</div>
+  <div id="ac"></div>`;
+  ({dashboard:rDash,grupos:rGrupos,mensual:rMensual,faltantes:rFalt,precursores:rPrec,historico:rHist,confidencial:rConf,config:rConfig})[adminTab]();
+}
+function flash(msg,tipo){
+  const el=document.getElementById('msgBox');if(!el)return;
+  el.innerHTML=`<div class="alert a${tipo}"><i class="ti ti-check" aria-hidden="true" style="vertical-align:-1px;margin-right:5px"></i>${msg}</div>`;
+  el.style.display='block';setTimeout(()=>{el.style.display='none'},3000);
+}
+
+/* ── DASHBOARD ── */
+function rDash(){
+  const y=S.año;const mi=getMesAct();
+  let totP=0,totPA=0,totPR=0,totH=0,totC=0,totPart=0;
+  S.grupos.forEach(g=>{totP+=g.pubs.length;});
+  S.grupos.forEach(g=>{
+    const rec=getRec(g.id,mi,y);
+    rec.filas.forEach(f=>{if(f.participo)totPart++;if(f.prec_aux)totPA++;if(f.prec_reg)totPR++;totH+=num(f.horas);totC+=num(f.cursos);});
+  });
+  const falt=getFaltantes(mi,y).length;
+  const cerrado=S.mesesCerrados[y+'_'+MK[mi]];
+  document.getElementById('ac').innerHTML=`
+  <div class="mgrid">
+    <div class="metric"><div class="l">Publicadores</div><div class="v" style="color:var(--c1)">${totP}</div></div>
+    <div class="metric"><div class="l">Prec. aux.</div><div class="v" style="color:var(--c3)">${totPA}</div></div>
+    <div class="metric"><div class="l">Prec. reg.</div><div class="v" style="color:var(--c5)">${totPR}</div></div>
+    <div class="metric"><div class="l">Horas (año)</div><div class="v">${totH}</div></div>
+    <div class="metric"><div class="l">Cursos</div><div class="v">${totC}</div></div>
+    <div class="metric"><div class="l">Sin informe</div><div class="v" style="color:var(--c2)">${falt}</div></div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
+      <span style="font-size:14px;font-weight:500">Mes actual: <span style="color:var(--c1)">${MESES[mi]}</span></span>
+      ${cerrado?'<span class="badge bg2"><i class="ti ti-lock" style="font-size:10px;vertical-align:-1px;margin-right:2px"></i>Cerrado</span>':
+      `<button class="bw" onclick="cerrarMes(${mi},'${y}')"><i class="ti ti-lock" aria-hidden="true"></i> Cerrar mes</button>`}
+    </div>
+    ${cerrado?rResumenCerrado(mi,y):'<div style="font-size:12px;color:var(--color-text-secondary)">Mes en curso. Ciérralo cuando todos hayan reportado.</div>'}
+  </div>
+  <div class="card">
+    <div style="font-size:13px;font-weight:500;margin-bottom:.75rem">Por grupo — ${MESES[mi]}</div>
+    <div style="overflow-x:auto"><table>
+      <thead><tr><th>Grupo</th><th>Pub.</th><th>Informaron</th><th>P.Aux.</th><th>P.Reg.</th><th>Horas</th><th>Cursos</th><th>%</th></tr></thead>
+      <tbody>${S.grupos.map(g=>{
+        const r=getRec(g.id,mi,y);const rs=calcR(r.filas);
+        const pct=rs.total?Math.round(rs.part/rs.total*100):0;
+        return`<tr><td style="font-weight:500">${g.nombre}</td><td>${rs.total}</td><td>${rs.part}</td><td>${rs.pa}</td><td>${rs.pr}</td><td>${rs.horas}</td><td>${rs.cursos}</td>
+        <td><span class="badge ${pct===100?'bg2':pct>=50?'ba':'br2'}">${pct}%</span></td></tr>`;
+      }).join('')}</tbody>
+    </table></div>
+  </div>`;
+}
+
+/* ── GRUPOS ── */
+function rGrupos(){
+  const g=S.grupos[editGrupo];
+  document.getElementById('ac').innerHTML=`
+  <div style="display:grid;grid-template-columns:160px 1fr;gap:1rem;align-items:start">
+    <div>
+      ${S.grupos.map((gr,i)=>`<div onclick="editGrupo=${i};rGrupos()" style="padding:8px 10px;border-radius:var(--rad);cursor:pointer;margin-bottom:4px;font-size:13px;transition:background .1s;${editGrupo===i?'background:var(--c1l);color:var(--c1d);font-weight:500':''}">
+        <div>${gr.nombre}</div><div style="font-size:11px;color:var(--color-text-secondary)">${gr.pubs.length} pub.</div>
+      </div>`).join('')}
+    </div>
+    <div>
+      <div class="card">
+        <div style="font-size:14px;font-weight:500;margin-bottom:.75rem">Configurar ${g.nombre}</div>
+        <div class="g2">
+          <div class="fld"><label>Nombre del grupo</label><input id="gN" value="${g.nombre}" oninput="S.grupos[${editGrupo}].nombre=this.value"></div>
+          <div class="fld"><label>Superintendente</label><input id="gS" value="${g.superintendente||''}" oninput="S.grupos[${editGrupo}].superintendente=this.value"></div>
+          <div class="fld" style="grid-column:1/-1"><label>Auxiliar destacado del grupo</label>
+            <select onchange="S.grupos[${editGrupo}].auxiliar=this.value">
+              <option value="">— ninguno —</option>
+              ${g.pubs.map(p=>`<option value="${p.id}" ${g.auxiliar===p.id?'selected':''}>${p.nombre}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
+          <span style="font-size:14px;font-weight:500">Publicadores <span style="color:var(--c1)">(${g.pubs.length})</span></span>
+          <button class="bp" onclick="abrirModalPub(${editGrupo},null)"><i class="ti ti-plus" aria-hidden="true"></i> Añadir</button>
+        </div>
+        <div>
+        ${g.pubs.map((p,pi)=>{
+          const [bg,fg]=AVATARCOLORS[pi%AVATARCOLORS.length];
+          const cargos=p.cargos||[];
+          return`<div class="pub-row">
+            <div class="avatar" style="background:${bg};color:${fg}">${inic(p.nombre)}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:500;display:flex;flex-wrap:wrap;align-items:center;gap:4px">
+                ${p.nombre}
+                ${g.auxiliar===p.id?'<span class="badge bb"><i class="ti ti-star" style="font-size:9px;vertical-align:-1px;margin-right:2px"></i>Auxiliar</span>':''}
+                ${p.sordo?'<span class="badge ba">Sordo</span>':''}
+                ${cargos.map(c=>`<span class="badge ${c==='precursor_regular'||c==='precursor_especial'||c==='misionero'?'bg2':c==='anciano'?'bp2':'bgr'}">${cargoC(c)}</span>`).join('')}
+              </div>
+              <div style="font-size:11px;color:var(--color-text-secondary)">${p.celular||''} ${p.direccion?'· '+p.direccion.substring(0,30):''}</div>
+            </div>
+            <button onclick="abrirModalPub(${editGrupo},${pi})" style="padding:4px 8px;font-size:11px"><i class="ti ti-edit" aria-hidden="true"></i></button>
+            <button onclick="delPub(${editGrupo},${pi})" style="padding:4px 8px;font-size:11px;color:#993556"><i class="ti ti-trash" aria-hidden="true"></i></button>
+          </div>`;
+        }).join('')}
+        ${!g.pubs.length?'<div style="text-align:center;padding:1.25rem;color:var(--color-text-secondary);font-size:13px">Sin publicadores aún.</div>':''}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* Modal publicador */
+const CARGOS=[
+  ['anciano','Anciano'],['siervo','Siervo ministerial'],
+  ['precursor_regular','Precursor regular'],['precursor_especial','Precursor especial'],['misionero','Misionero']
+];
+function abrirModalPub(gi,pi){
+  editPubGi=gi;editPubPi=pi;
+  const isNew=pi===null;
+  const p=isNew?{id:'p'+Date.now(),nombre:'',fecha_nacimiento:'',fecha_bautismo:'',sexo:'hombre',tipo:'otras_ovejas',cargos:[],direccion:'',celular:'',emergencia:'',sordo:false}:S.grupos[gi].pubs[pi];
+  const cargosActuales=p.cargos||[];
+  const modal=document.createElement('div');
+  modal.id='pubModal';
+  modal.style.cssText='min-height:500px;background:rgba(0,0,0,0.5);display:flex;align-items:flex-start;justify-content:center;padding:1rem;margin-bottom:1rem;border-radius:var(--rad-lg)';
+  modal.innerHTML=`<div style="background:var(--color-background-primary);border-radius:var(--rad-lg);padding:1.25rem;width:100%;border:1.5px solid var(--color-border-tertiary)">
+    <div style="font-size:14px;font-weight:500;margin-bottom:1rem;color:var(--c1)">${isNew?'Nuevo publicador':'Editar publicador'}</div>
+    <div class="g2">
+      <div class="fld" style="grid-column:1/-1"><label>Nombre completo</label><input id="mpN" value="${p.nombre}"></div>
+      <div class="fld"><label>Fecha nacimiento</label><input id="mpFN" value="${p.fecha_nacimiento||''}" placeholder="dd/mm/aaaa"></div>
+      <div class="fld"><label>Fecha bautismo</label><input id="mpFB" value="${p.fecha_bautismo||''}" placeholder="dd/mm/aaaa"></div>
+      <div class="fld"><label>Sexo</label><select id="mpS">
+        <option value="hombre" ${p.sexo==='hombre'?'selected':''}>Hombre</option>
+        <option value="mujer" ${p.sexo==='mujer'?'selected':''}>Mujer</option>
+      </select></div>
+      <div class="fld"><label>Tipo</label><select id="mpT">
+        <option value="otras_ovejas" ${p.tipo==='otras_ovejas'?'selected':''}>Otras ovejas</option>
+        <option value="ungido" ${p.tipo==='ungido'?'selected':''}>Ungido</option>
+      </select></div>
+      <div class="fld"><label>Teléfono / Celular</label><input id="mpCel" value="${p.celular||''}"></div>
+      <div class="fld"><label>Contacto de emergencia</label><input id="mpEmg" value="${p.emergencia||''}"></div>
+      <div class="fld" style="grid-column:1/-1"><label>Dirección</label><input id="mpDir" value="${p.direccion||''}"></div>
+      <div class="fld" style="grid-column:1/-1">
+        <label>Cargos / Designaciones (puede seleccionar varios)</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px">
+          ${CARGOS.map(([val,lbl])=>`<label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;padding:6px 8px;border-radius:var(--rad);border:1.5px solid var(--color-border-tertiary);text-transform:none;letter-spacing:0;color:var(--color-text-primary)" id="lbl_${val}">
+            <input type="checkbox" id="mc_${val}" ${cargosActuales.includes(val)?'checked':''} onchange="updCargoLbl('${val}')"> ${lbl}
+          </label>`).join('')}
+        </div>
+      </div>
+      <div class="fld" style="grid-column:1/-1">
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;text-transform:none;letter-spacing:0;color:var(--color-text-primary)">
+          <input type="checkbox" id="mpSordo" ${p.sordo?'checked':''}> Es sordo / lengua de señas
+        </label>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:1rem">
+      <button class="bp" style="flex:1;justify-content:center" onclick="guardarPub()"><i class="ti ti-check" aria-hidden="true"></i> Guardar</button>
+      <button style="flex:1;justify-content:center" onclick="cancelarModal()"><i class="ti ti-x" aria-hidden="true"></i> Cancelar</button>
+    </div>
+  </div>`;
+  document.getElementById('ac').prepend(modal);
+  CARGOS.forEach(([val])=>updCargoLbl(val));
+}
+function updCargoLbl(val){
+  const cb=document.getElementById('mc_'+val);
+  const lbl=document.getElementById('lbl_'+val);
+  if(!cb||!lbl) return;
+  lbl.style.background=cb.checked?'var(--c1l)':'var(--color-background-primary)';
+  lbl.style.borderColor=cb.checked?'var(--c1)':'var(--color-border-tertiary)';
+  lbl.style.color=cb.checked?'var(--c1d)':'var(--color-text-primary)';
+}
+function guardarPub(){
+  const gi=editPubGi;const isNew=editPubPi===null;
+  const cargos=CARGOS.map(([v])=>v).filter(v=>{const el=document.getElementById('mc_'+v);return el&&el.checked;});
+  const datos={
+    id:isNew?'p'+Date.now():(S.grupos[gi].pubs[editPubPi]?.id||'p'+Date.now()),
+    nombre:document.getElementById('mpN').value,
+    fecha_nacimiento:document.getElementById('mpFN').value,
+    fecha_bautismo:document.getElementById('mpFB').value,
+    sexo:document.getElementById('mpS').value,
+    tipo:document.getElementById('mpT').value,
+    celular:document.getElementById('mpCel').value,
+    emergencia:document.getElementById('mpEmg').value,
+    direccion:document.getElementById('mpDir').value,
+    cargos,sordo:document.getElementById('mpSordo').checked
+  };
+  if(isNew) S.grupos[gi].pubs.push(datos);
+  else S.grupos[gi].pubs[editPubPi]=datos;
+  save();cancelarModal();
+}
+function cancelarModal(){editPubGi=null;editPubPi=null;rGrupos();}
+function delPub(gi,pi){
+  if(!confirm('¿Eliminar publicador?')) return;
+  S.grupos[gi].pubs.splice(pi,1);save();rGrupos();
+}
+
+/* ── MENSUAL ── */
+function rMensual(){
+  const y=S.año;const cerrado=S.mesesCerrados[y+'_'+MK[mesTab]];
+  document.getElementById('ac').innerHTML=`
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+    <select style="width:auto;font-size:12px" onchange="mesTab=parseInt(this.value);rMesBody()">
+      ${MESES.map((m,i)=>`<option value="${i}" ${mesTab===i?'selected':''}>${m}</option>`).join('')}
+    </select>
+    <select style="width:auto;font-size:12px" onchange="grupoMes=parseInt(this.value);rMesBody()">
+      ${S.grupos.map((g,i)=>`<option value="${i}" ${grupoMes===i?'selected':''}>${g.nombre}</option>`).join('')}
+    </select>
+    ${cerrado?'<span class="badge bg2"><i class="ti ti-lock" style="font-size:10px;vertical-align:-1px;margin-right:2px"></i>Mes cerrado</span>':''}
+  </div>
+  <div id="mesBody"></div>`;
+  rMesBody();
+}
+function rMesBody(){
+  const y=S.año;const rec=getRec(grupoMes,mesTab,y);
+  const cerrado=S.mesesCerrados[y+'_'+MK[mesTab]];
+  const el=document.getElementById('mesBody');
+  if(!rec.filas.length){el.innerHTML='<div class="card" style="text-align:center;padding:1.5rem;color:var(--color-text-secondary)">Sin publicadores en este grupo.</div>';return;}
+  const rs=calcR(rec.filas);
+  el.innerHTML=`<div class="card" style="overflow-x:auto">
+    <table style="min-width:580px">
+      <thead><tr>
+        <th style="width:150px">Nombre</th>
+        <th style="width:65px;text-align:center">Participó</th>
+        <th style="width:60px;text-align:center">P.Aux.</th>
+        <th style="width:60px;text-align:center">P.Reg.</th>
+        <th style="width:55px;text-align:center">Horas</th>
+        <th style="width:55px;text-align:center">Cursos</th>
+        <th>Observaciones</th>
+      </tr></thead>
+      <tbody id="mesT"></tbody>
+    </table>
+  </div>
+  <div class="mgrid">
+    <div class="metric"><div class="l">Total</div><div class="v" style="color:var(--c1)">${rs.total}</div></div>
+    <div class="metric"><div class="l">Informaron</div><div class="v" style="color:var(--c3)">${rs.part}</div></div>
+    <div class="metric"><div class="l">Irregulares</div><div class="v" style="color:var(--c2)">${rs.irreg}</div></div>
+    <div class="metric"><div class="l">P.Aux.</div><div class="v">${rs.pa}</div></div>
+    <div class="metric"><div class="l">P.Reg.</div><div class="v">${rs.pr}</div></div>
+    <div class="metric"><div class="l">Horas</div><div class="v">${rs.horas}</div></div>
+    <div class="metric"><div class="l">Cursos</div><div class="v">${rs.cursos}</div></div>
+  </div>`;
+  const tbody=document.getElementById('mesT');
+  rec.filas.forEach((f,i)=>{
+    const tr=document.createElement('tr');
+    const esP=f.prec_aux||f.prec_reg;
+    tr.innerHTML=`
+      <td style="font-weight:500;white-space:normal">${f.nombre}</td>
+      <td style="text-align:center"><input type="checkbox" ${f.participo?'checked':''} ${cerrado?'disabled':''} onchange="uF(${grupoMes},${mesTab},'${y}',${i},'participo',this.checked)"></td>
+      <td style="text-align:center"><input type="checkbox" ${f.prec_aux?'checked':''} ${cerrado?'disabled':''} onchange="uF(${grupoMes},${mesTab},'${y}',${i},'prec_aux',this.checked)"></td>
+      <td style="text-align:center"><input type="checkbox" ${f.prec_reg?'checked':''} ${cerrado?'disabled':''} onchange="uF(${grupoMes},${mesTab},'${y}',${i},'prec_reg',this.checked)"></td>
+      <td><input type="number" min="0" value="${f.horas||''}" placeholder="0" style="font-size:12px;${!esP?'opacity:.3;':''}" ${!esP||cerrado?'disabled':''} onchange="uF(${grupoMes},${mesTab},'${y}',${i},'horas',this.value)"></td>
+      <td><input type="number" min="0" value="${f.cursos||''}" placeholder="0" style="font-size:12px" ${cerrado?'disabled':''} onchange="uF(${grupoMes},${mesTab},'${y}',${i},'cursos',this.value)"></td>
+      <td><input type="text" value="${f.obs||''}" placeholder="Obs…" style="font-size:12px" ${cerrado?'disabled':''} onchange="uF(${grupoMes},${mesTab},'${y}',${i},'obs',this.value)"></td>`;
+    tbody.appendChild(tr);
+  });
+}
+function uF(gi,mi,y,i,campo,val){
+  const k=rKey(gi,mi,y);S.registros[k].filas[i][campo]=val;
+  if(campo==='prec_aux'||campo==='prec_reg') rMesBody();
+}
+
+/* ── SIN INFORME ── */
+let fGrupo='todos';
+function rFalt(){
+  document.getElementById('ac').innerHTML=`
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+    <span style="font-size:13px;font-weight:500">Sin informe — <span style="color:var(--c1)">${MESES[getMesAct()]}</span></span>
+    <select id="fGrupoSel" style="width:auto;font-size:12px" onchange="fGrupo=this.value;rFaltList()">
+      <option value="todos">Toda la congregación</option>
+      ${S.grupos.map((g,i)=>`<option value="${i}">${g.nombre}</option>`).join('')}
+    </select>
+  </div>
+  <div id="faltList"></div>`;
+  rFaltList();
+}
+function rFaltList(){
+  const y=S.año;const mi=getMesAct();
+  const grupos=fGrupo==='todos'?S.grupos:[S.grupos[parseInt(fGrupo)]];
+  let html='';
+  grupos.forEach(g=>{
+    const rec=getRec(g.id,mi,y);
+    const falt=rec.filas.filter(f=>!f.participo);
+    if(!falt.length) return;
+    html+=`<div class="card"><div style="font-size:13px;font-weight:500;margin-bottom:.5rem;color:var(--c1)">${g.nombre} — <span style="color:var(--c2)">${falt.length} sin informe</span></div>
+    ${falt.map(f=>{const irr=calcIrreg(f.nombre,g.id,y);
+      return`<div class="pub-row">
+        <div class="avatar" style="background:var(--c2l);color:#993556">${inic(f.nombre)}</div>
+        <div style="flex:1"><div style="font-size:13px">${f.nombre}</div>
+        <div style="font-size:11px;color:var(--color-text-secondary)">${irr} mes(es) sin informe este año</div></div>
+        <span class="badge ${irr>=3?'br2':'ba'}">${irr>=3?'Irregular':'Pendiente'}</span>
+      </div>`;}).join('')}</div>`;
+  });
+  document.getElementById('faltList').innerHTML=html||'<div class="card" style="text-align:center;padding:1.5rem"><i class="ti ti-check" aria-hidden="true" style="font-size:24px;color:var(--c3);display:block;margin:0 auto 6px"></i><span style="color:var(--color-text-secondary)">Todos han informado.</span></div>';
+}
+
+/* ── PRECURSORES ── */
+function rPrec(){
+  const y=S.año;const precs=[];
+  S.grupos.forEach(g=>{
+    g.pubs.filter(p=>(p.cargos||[]).some(c=>c==='precursor_regular'||c==='precursor_especial'||c==='misionero')).forEach(p=>{
+      let ha=0,mr=0;
+      MESES.forEach((_,mi)=>{
+        const rec=S.registros[rKey(g.id,mi,y)];if(!rec)return;
+        const f=rec.filas.find(f=>f.nombre===p.nombre);
+        if(f){ha+=num(f.horas);if(f.participo||f.prec_reg||f.prec_aux)mr++;}
+      });
+      const mr2=11-getMesAct();const hn=600-ha;
+      const enR=mr2>0&&(hn/mr2)>90&&ha<600;
+      precs.push({p,g,ha,mr,mr2,hn,pm:mr>0?Math.round(ha/mr):0,enR});
+    });
+  });
+  const aux=[];
+  S.grupos.forEach(g=>{
+    const rec=getRec(g.id,getMesAct(),y);
+    rec.filas.filter(f=>f.prec_aux).forEach(f=>aux.push({f,g}));
+  });
+  document.getElementById('ac').innerHTML=`
+  <div class="card">
+    <div style="font-size:13px;font-weight:500;margin-bottom:.75rem">Precursores regulares — análisis de horas ${y}–${parseInt(y)+1}</div>
+    ${!precs.length?'<div style="color:var(--color-text-secondary);font-size:13px">Sin precursores regulares registrados.</div>':`
+    <div style="overflow-x:auto"><table>
+      <thead><tr><th>Nombre</th><th>Grupo</th><th>Horas acum.</th><th>Prom./mes</th><th>Meses rest.</th><th>Faltan</th><th>Estado</th></tr></thead>
+      <tbody>${precs.map(({p,g,ha,pm,mr2,hn,enR})=>`<tr>
+        <td style="font-weight:500;white-space:normal">${p.nombre}</td>
+        <td>${g.nombre}</td>
+        <td style="font-weight:500;color:var(--c1)">${ha}</td>
+        <td>${pm}</td><td>${mr2}</td>
+        <td>${Math.max(0,hn)}</td>
+        <td><span class="badge ${ha>=600?'bg2':enR?'br2':'ba'}">${ha>=600?'Meta lograda':enR?'En riesgo':'En curso'}</span></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`}
+  </div>
+  <div class="card">
+    <div style="font-size:13px;font-weight:500;margin-bottom:.5rem">Precursores auxiliares — ${MESES[getMesAct()]}</div>
+    ${aux.length?aux.map(({f,g})=>`<div class="pub-row">
+      <div class="avatar" style="background:var(--c4l);color:#854F0B">${inic(f.nombre)}</div>
+      <div style="flex:1"><div style="font-size:13px">${f.nombre}</div><div style="font-size:11px;color:var(--color-text-secondary)">${g.nombre}</div></div>
+      <div style="font-size:14px;font-weight:500">${num(f.horas)}h</div>
+    </div>`).join(''):'<div style="color:var(--color-text-secondary);font-size:13px">Ninguno este mes.</div>'}
+  </div>`;
+}
+
+/* ── HISTÓRICO ── */
+function rHist(){
+  const y=S.año;let rows='',tp=0,tpa2=0,tirr=0,tpa=0,tpr=0,th=0,tc=0;
+  MESES.forEach((mes,mi)=>{
+    let p=0,pa2=0,irr=0,pa=0,pr=0,h=0,c=0;
+    S.grupos.forEach(g=>{
+      const rec=S.registros[rKey(g.id,mi,y)];if(!rec)return;
+      rec.filas.forEach(f=>{p++;if(f.participo)pa2++;else irr++;if(f.prec_aux)pa++;if(f.prec_reg)pr++;h+=num(f.horas);c+=num(f.cursos);});
+    });
+    tp+=p;tpa2+=pa2;tirr+=irr;tpa+=pa;tpr+=pr;th+=h;tc+=c;
+    const cerrado=S.mesesCerrados[y+'_'+MK[mi]];
+    rows+=`<tr><td style="font-weight:500">${mes}</td><td>${p}</td><td>${pa2}</td><td style="color:var(--c2)">${irr}</td><td>${pa}</td><td>${pr}</td><td>${h}</td><td>${c}</td>
+    <td>${cerrado?'<span class="badge bg2">Cerrado</span>':'<span class="badge bgr">Abierto</span>'}</td></tr>`;
+  });
+  document.getElementById('ac').innerHTML=`<div class="card" style="overflow-x:auto">
+    <div style="font-size:13px;font-weight:500;margin-bottom:.75rem">Histórico ${y}–${parseInt(y)+1}</div>
+    <table><thead><tr><th>Mes</th><th>Pub.</th><th>Activos</th><th>Irreg.</th><th>P.Aux.</th><th>P.Reg.</th><th>Horas</th><th>Cursos</th><th>Estado</th></tr></thead>
+    <tbody>${rows}</tbody>
+    <tfoot><tr style="background:var(--color-background-secondary);font-weight:500">
+      <td>Total</td><td>${tp}</td><td>${tpa2}</td><td style="color:var(--c2)">${tirr}</td><td>${tpa}</td><td>${tpr}</td><td>${th}</td><td>${tc}</td><td></td>
+    </tr></tfoot></table>
+  </div>`;
+}
+
+/* ── CONFIDENCIAL ── */
+let confPub=null,confGi=null;
+function rConf(){
+  const todos=[];
+  S.grupos.forEach((g,gi)=>g.pubs.forEach((p,pi)=>todos.push({p,g,gi,pi})));
+  document.getElementById('ac').innerHTML=`
+  <div style="display:grid;grid-template-columns:200px 1fr;gap:1rem;align-items:start">
+    <div class="card" style="padding:.75rem">
+      <div style="font-size:11px;font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.5rem">Publicadores</div>
+      <input id="confBuscar" placeholder="Buscar…" oninput="filtrarConf()" style="margin-bottom:.5rem;font-size:12px">
+      <div id="confLista"></div>
+    </div>
+    <div id="confDetalle"><div style="padding:2rem;text-align:center;color:var(--color-text-secondary);font-size:13px"><i class="ti ti-lock" aria-hidden="true" style="font-size:28px;color:var(--c5);display:block;margin:0 auto 8px"></i>Selecciona un publicador<br>para ver su información confidencial.</div></div>
+  </div>`;
+  filtrarConf();
+}
+function filtrarConf(){
+  const q=(document.getElementById('confBuscar')?.value||'').toLowerCase();
+  const todos=[];
+  S.grupos.forEach((g,gi)=>g.pubs.forEach((p,pi)=>{if(!q||(p.nombre||'').toLowerCase().includes(q))todos.push({p,g,gi,pi});}));
+  const el=document.getElementById('confLista');
+  el.innerHTML=todos.map(({p,g,gi,pi})=>`
+    <div onclick="abrirConf(${gi},${pi})" style="padding:7px 8px;border-radius:var(--rad);cursor:pointer;font-size:13px;margin-bottom:3px;${confGi===gi&&confPub===pi?'background:var(--c1l);color:var(--c1d);font-weight:500':''}">
+      <div>${p.nombre}</div><div style="font-size:11px;color:var(--color-text-secondary)">${g.nombre}</div>
+    </div>`).join('');
+}
+function abrirConf(gi,pi){
+  confGi=gi;confPub=pi;
+  const p=S.grupos[gi].pubs[pi];
+  const key=`${gi}_${p.id}`;
+  if(!S.confidencial[key]) S.confidencial[key]={};
+  const c=S.confidencial[key];
+  filtrarConf();
+  const hoy=new Date().toISOString().split('T')[0];
+  const seguimVenc=c.seguimiento&&c.seguimiento<hoy;
+  document.getElementById('confDetalle').innerHTML=`
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">
+      <div class="avatar" style="width:40px;height:40px;font-size:14px;background:var(--c5l);color:var(--c1d)">${inic(p.nombre)}</div>
+      <div><div style="font-size:15px;font-weight:500">${p.nombre}</div>
+      <div style="font-size:12px;color:var(--color-text-secondary)">${S.grupos[gi].nombre}</div></div>
+    </div>
+    ${seguimVenc?`<div class="alert awarn"><i class="ti ti-bell" aria-hidden="true" style="vertical-align:-1px;margin-right:5px"></i>Seguimiento vencido desde ${c.seguimiento}</div>`:''}
+    <div class="g2">
+      <div class="fld"><label>Fecha de censura</label><input type="date" id="cFCen" value="${c.f_censura||''}"></div>
+      <div class="fld"><label>Fecha de sacado</label><input type="date" id="cFSac" value="${c.f_sacado||''}"></div>
+      <div class="fld"><label>Fecha de readmisión</label><input type="date" id="cFRead" value="${c.f_readmision||''}"></div>
+      <div class="fld"><label>Fin de restricciones</label><input type="date" id="cFFin" value="${c.f_fin_restricciones||''}"></div>
+      <div class="fld" style="grid-column:1/-1">
+        <label style="display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;font-size:13px">
+          Fecha de seguimiento <span class="badge ${seguimVenc?'br2':'bb'}" style="margin-left:4px">${seguimVenc?'Vencido':'Activo'}</span>
+        </label>
+        <input type="date" id="cFSeg" value="${c.seguimiento||''}">
+      </div>
+      <div class="fld" style="grid-column:1/-1"><label>Notas confidenciales</label><textarea id="cNotas">${c.notas||''}</textarea></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:.5rem">
+      <button class="bp" onclick="guardarConf(${gi},${pi})" style="flex:1;justify-content:center"><i class="ti ti-check" aria-hidden="true"></i> Guardar</button>
+      <button onclick="limpiarConf(${gi},${pi})" style="color:#993556"><i class="ti ti-trash" aria-hidden="true"></i> Limpiar</button>
+    </div>
+  </div>`;
+}
+function guardarConf(gi,pi){
+  const p=S.grupos[gi].pubs[pi];const key=`${gi}_${p.id}`;
+  S.confidencial[key]={
+    f_censura:document.getElementById('cFCen').value,
+    f_sacado:document.getElementById('cFSac').value,
+    f_readmision:document.getElementById('cFRead').value,
+    f_fin_restricciones:document.getElementById('cFFin').value,
+    seguimiento:document.getElementById('cFSeg').value,
+    notas:document.getElementById('cNotas').value
+  };
+  save();abrirConf(gi,pi);
+}
+function limpiarConf(gi,pi){
+  if(!confirm('¿Borrar toda la información confidencial de este publicador?')) return;
+  const p=S.grupos[gi].pubs[pi];S.confidencial[`${gi}_${p.id}`]={};
+  save();abrirConf(gi,pi);
+}
+
+/* ── CONFIG ── */
+function rConfig(){
+  document.getElementById('ac').innerHTML=`
+  <div class="card">
+    <div style="font-size:14px;font-weight:500;margin-bottom:.75rem">Usuarios del sistema</div>
+    <div id="uList"></div>
+    <div class="sep"></div>
+    <div style="font-size:13px;font-weight:500;margin-bottom:.5rem">Agregar superintendente</div>
+    <div class="g3" style="margin-bottom:8px">
+      <div class="fld"><label>Nombre</label><input id="uN" placeholder="Nombre completo"></div>
+      <div class="fld"><label>Grupo</label><select id="uG">${S.grupos.map((g,i)=>`<option value="${i}">${g.nombre}</option>`).join('')}</select></div>
+      <div class="fld"><label>PIN</label><input id="uP" type="password" placeholder="••••" maxlength="6"></div>
+    </div>
+    <button class="bp" onclick="addUser()"><i class="ti ti-plus" aria-hidden="true"></i> Crear acceso</button>
+  </div>
+  <div class="card">
+    <div style="font-size:14px;font-weight:500;margin-bottom:.5rem">Cambiar PIN de secretario</div>
+    <div class="g2">
+      <div class="fld"><label>PIN actual</label><input type="password" id="pV" placeholder="••••" maxlength="6"></div>
+      <div class="fld"><label>PIN nuevo</label><input type="password" id="pN2" placeholder="••••" maxlength="6"></div>
+    </div>
+    <button onclick="cambiarPin()"><i class="ti ti-key" aria-hidden="true"></i> Cambiar PIN</button>
+  </div>`;
+  rUserList();
+}
+function rUserList(){
+  const el=document.getElementById('uList');
+  const otros=S.usuarios.filter(u=>u.rol!=='secretario');
+  el.innerHTML=otros.map(u=>`<div class="pub-row">
+    <div class="avatar" style="background:var(--c3l);color:#0F6E56">${inic(u.nombre)}</div>
+    <div style="flex:1"><div style="font-size:13px;font-weight:500">${u.nombre}</div>
+    <div style="font-size:11px;color:var(--color-text-secondary)">${(S.grupos[u.grupoId]||{nombre:'?'}).nombre}</div></div>
+    <button onclick="delUser('${u.id}')" style="padding:4px 8px;font-size:11px;color:#993556"><i class="ti ti-trash" aria-hidden="true"></i></button>
+  </div>`).join('')||'<div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:.5rem">Sin superintendentes adicionales.</div>';
+}
+function addUser(){
+  const n=document.getElementById('uN').value.trim();
+  const gi=parseInt(document.getElementById('uG').value);
+  const p=document.getElementById('uP').value;
+  if(!n||p.length<4){alert('Completa nombre y PIN mínimo 4 dígitos.');return;}
+  S.usuarios.push({id:'u'+Date.now(),rol:'super',nombre:n,grupoId:gi,pin:p});
+  save();rConfig();
+}
+function delUser(id){if(!confirm('¿Eliminar acceso?'))return;S.usuarios=S.usuarios.filter(u=>u.id!==id);save();rConfig();}
+function cambiarPin(){
+  const v=document.getElementById('pV').value,n=document.getElementById('pN2').value;
+  const sec=S.usuarios.find(u=>u.rol==='secretario');
+  if(sec.pin!==v){alert('PIN actual incorrecto.');return;}
+  if(n.length<4){alert('El PIN nuevo debe tener al menos 4 dígitos.');return;}
+  sec.pin=n;save();alert('PIN cambiado.');
+}
+
+/* ══ SUPERINTENDENTE ════════════════════════════════════════════ */
+let supTab='mensual',supMes=MES_ACT;
+function renderSuper(){
+  const u=S.sesion;const g=S.grupos[u.grupoId];const y=S.año;
+  const falt=getRec(u.grupoId,getMesAct(),y).filas.filter(f=>!f.participo).length;
+  root.innerHTML=`
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;padding-bottom:.75rem;border-bottom:1.5px solid var(--color-border-tertiary)">
+    <div>
+      <div style="font-size:15px;font-weight:500;color:var(--c1)">${g.nombre}</div>
+      <div style="font-size:11px;color:var(--color-text-secondary)">Superintendente: ${u.nombre}</div>
+    </div>
+    <div style="display:flex;gap:6px">
+      <button class="bg" onclick="save();alert('Guardado.')" style="padding:6px 10px"><i class="ti ti-device-floppy" aria-hidden="true"></i></button>
+      <button onclick="logout()" style="padding:6px 10px;color:#993556"><i class="ti ti-logout" aria-hidden="true"></i></button>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab ${supTab==='mensual'?'on':''}" onclick="supTab='mensual';renderSuper()"><i class="ti ti-calendar-month" aria-hidden="true" style="font-size:13px;vertical-align:-1px;margin-right:3px"></i>Mensual</button>
+    <button class="tab ${supTab==='falt'?'on':''}" onclick="supTab='falt';renderSuper()">
+      <i class="ti ti-alert-circle" aria-hidden="true" style="font-size:13px;vertical-align:-1px;margin-right:3px"></i>Sin informe
+      ${falt>0?`<span class="badge br2" style="margin-left:4px">${falt}</span>`:''}
+    </button>
+    <button class="tab ${supTab==='hist'?'on':''}" onclick="supTab='hist';renderSuper()"><i class="ti ti-history" aria-hidden="true" style="font-size:13px;vertical-align:-1px;margin-right:3px"></i>Histórico</button>
+  </div>
+  <div id="supC"></div>`;
+  if(supTab==='mensual') rSupMens();
+  else if(supTab==='falt') rSupFalt();
+  else rSupHist();
+}
+function rSupMens(){
+  const u=S.sesion;const y=S.año;
+  document.getElementById('supC').innerHTML=`
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+    <select style="width:auto;font-size:12px" onchange="supMes=parseInt(this.value);rSupMensBody()">
+      ${MESES.map((m,i)=>`<option value="${i}" ${supMes===i?'selected':''}>${m}</option>`).join('')}
+    </select>
+    <select style="width:auto;font-size:12px" onchange="S.año=this.value;rSupMensBody()">
+      <option value="2024" ${y==='2024'?'selected':''}>2024–25</option>
+      <option value="2025" ${y==='2025'?'selected':''}>2025–26</option>
+      <option value="2026" ${y==='2026'?'selected':''}>2026–27</option>
+    </select>
+  </div>
+  <div id="supMensBody"></div>`;
+  rSupMensBody();
+}
+function rSupMensBody(){
+  const u=S.sesion;const y=S.año;
+  const rec=getRec(u.grupoId,supMes,y);
+  const cerrado=S.mesesCerrados[y+'_'+MK[supMes]];
+  const el=document.getElementById('supMensBody');
+  if(!rec.filas.length){el.innerHTML='<div class="card" style="text-align:center;padding:1.5rem;color:var(--color-text-secondary)">El secretario aún no ha registrado publicadores en tu grupo.</div>';return;}
+  const rs=calcR(rec.filas);
+  el.innerHTML=`
+  ${cerrado?'<div class="alert aok"><i class="ti ti-lock" aria-hidden="true" style="vertical-align:-1px;margin-right:5px"></i>Mes cerrado por el secretario.</div>':''}
+  <div class="card" style="overflow-x:auto">
+    <table style="min-width:500px">
+      <thead><tr>
+        <th style="width:150px">Nombre</th>
+        <th style="width:65px;text-align:center">Participó</th>
+        <th style="width:60px;text-align:center">P.Aux.</th>
+        <th style="width:55px;text-align:center">Horas</th>
+        <th style="width:55px;text-align:center">Cursos</th>
+        <th>Obs.</th>
+      </tr></thead>
+      <tbody id="supT"></tbody>
+    </table>
+  </div>
+  <div class="mgrid">
+    <div class="metric"><div class="l">Total</div><div class="v" style="color:var(--c1)">${rs.total}</div></div>
+    <div class="metric"><div class="l">Informaron</div><div class="v" style="color:var(--c3)">${rs.part}</div></div>
+    <div class="metric"><div class="l">Sin informe</div><div class="v" style="color:var(--c2)">${rs.total-rs.part}</div></div>
+    <div class="metric"><div class="l">P.Aux.</div><div class="v">${rs.pa}</div></div>
+    <div class="metric"><div class="l">Horas</div><div class="v">${rs.horas}</div></div>
+    <div class="metric"><div class="l">Cursos</div><div class="v">${rs.cursos}</div></div>
+  </div>`;
+  const tbody=document.getElementById('supT');
+  rec.filas.forEach((f,i)=>{
+    const tr=document.createElement('tr');const esP=f.prec_aux||f.prec_reg;
+    tr.innerHTML=`
+      <td style="font-weight:500;white-space:normal">${f.nombre}</td>
+      <td style="text-align:center"><input type="checkbox" ${f.participo?'checked':''} ${cerrado?'disabled':''} onchange="uFSup(${u.grupoId},${supMes},'${y}',${i},'participo',this.checked)"></td>
+      <td style="text-align:center"><input type="checkbox" ${f.prec_aux?'checked':''} ${cerrado?'disabled':''} onchange="uFSup(${u.grupoId},${supMes},'${y}',${i},'prec_aux',this.checked)"></td>
+      <td><input type="number" min="0" value="${f.horas||''}" placeholder="0" style="font-size:12px;${!esP?'opacity:.3;':''}" ${!esP||cerrado?'disabled':''} onchange="uFSup(${u.grupoId},${supMes},'${y}',${i},'horas',this.value)"></td>
+      <td><input type="number" min="0" value="${f.cursos||''}" placeholder="0" style="font-size:12px" ${cerrado?'disabled':''} onchange="uFSup(${u.grupoId},${supMes},'${y}',${i},'cursos',this.value)"></td>
+      <td><input type="text" value="${f.obs||''}" placeholder="Obs…" style="font-size:12px" ${cerrado?'disabled':''} onchange="uFSup(${u.grupoId},${supMes},'${y}',${i},'obs',this.value)"></td>`;
+    tbody.appendChild(tr);
+  });
+}
+function uFSup(gi,mi,y,i,campo,val){
+  const k=rKey(gi,mi,y);S.registros[k].filas[i][campo]=val;
+  if(campo==='prec_aux'||campo==='prec_reg') rSupMensBody();
+}
+function rSupFalt(){
+  const u=S.sesion;const y=S.año;const mi=getMesAct();
+  const rec=getRec(u.grupoId,mi,y);const falt=rec.filas.filter(f=>!f.participo);
+  document.getElementById('supC').innerHTML=`<div class="card">
+    <div style="font-size:13px;font-weight:500;margin-bottom:.75rem">Sin informe — ${MESES[mi]}</div>
+    ${falt.map(f=>{const irr=calcIrreg(f.nombre,u.grupoId,y);
+      return`<div class="pub-row">
+        <div class="avatar" style="background:var(--c2l);color:#993556">${inic(f.nombre)}</div>
+        <div style="flex:1"><div style="font-size:13px">${f.nombre}</div>
+        <div style="font-size:11px;color:var(--color-text-secondary)">${irr} mes(es) sin informe</div></div>
+        <span class="badge ${irr>=3?'br2':'ba'}">${irr>=3?'Irregular':'Pendiente'}</span>
+      </div>`;}).join('')||'<div style="text-align:center;padding:1rem;color:var(--color-text-secondary)"><i class="ti ti-check" aria-hidden="true" style="font-size:20px;color:var(--c3);display:block;margin:0 auto 5px"></i>Todos han informado.</div>'}
+  </div>`;
+}
+function rSupHist(){
+  const u=S.sesion;const y=S.año;let rows='';
+  MESES.forEach((mes,mi)=>{
+    const rec=S.registros[rKey(u.grupoId,mi,y)];
+    if(!rec||!rec.filas.length){rows+=`<tr><td>${mes}</td><td colspan="6" style="color:var(--color-text-secondary)">Sin datos</td></tr>`;return;}
+    const rs=calcR(rec.filas);const cerrado=S.mesesCerrados[y+'_'+MK[mi]];
+    rows+=`<tr><td style="font-weight:500">${mes}</td><td>${rs.total}</td><td>${rs.part}</td><td style="color:var(--c2)">${rs.irreg}</td><td>${rs.pa}</td><td>${rs.horas}</td><td>${rs.cursos}</td>
+    <td>${cerrado?'<span class="badge bg2">Cerrado</span>':'<span class="badge bgr">Abierto</span>'}</td></tr>`;
+  });
+  document.getElementById('supC').innerHTML=`<div class="card" style="overflow-x:auto">
+    <table><thead><tr><th>Mes</th><th>Pub.</th><th>Activos</th><th>Irreg.</th><th>P.Aux.</th><th>Horas</th><th>Cursos</th><th>Estado</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+  </div>`;
+}
+
+/* ══ HELPERS ═══════════════════════════════════════════════════ */
+function rKey(g,m,y){return`${y}_g${g}_${MK[m]}`;}
+function getRec(gi,mi,y){
+  const k=rKey(gi,mi,y);
+  if(!S.registros[k]) S.registros[k]={filas:[]};
+  const rec=S.registros[k];
+  S.grupos[gi].pubs.forEach(p=>{
+    if(!rec.filas.find(f=>f.nombre===p.nombre))
+      rec.filas.push({nombre:p.nombre,participo:false,prec_aux:false,prec_reg:false,horas:'',cursos:'',obs:''});
+  });
+  return rec;
+}
+function getMesAct(){return MES_ACT;}
+function getFaltantes(mi,y){const r=[];S.grupos.forEach(g=>{const rec=getRec(g.id,mi,y);rec.filas.filter(f=>!f.participo).forEach(f=>r.push({...f,grupo:g.nombre}));});return r;}
+function calcR(filas){
+  const total=filas.length,part=filas.filter(f=>f.participo).length;
+  return{total,part,irreg:total-part,pa:filas.filter(f=>f.prec_aux).length,pr:filas.filter(f=>f.prec_reg).length,
+    horas:filas.reduce((a,f)=>a+num(f.horas),0),cursos:filas.reduce((a,f)=>a+num(f.cursos),0)};
+}
+function calcIrreg(nombre,gi,y){let c=0;for(let mi=0;mi<12;mi++){const rec=S.registros[rKey(gi,mi,y)];if(!rec)continue;const f=rec.filas.find(f=>f.nombre===nombre);if(f&&!f.participo)c++;}return c;}
+function cerrarMes(mi,y){
+  if(!confirm(`¿Cerrar ${MESES[mi]}? No se podrá editar después.`)) return;
+  S.mesesCerrados[y+'_'+MK[mi]]=true;
+  let t=0,pa2=0,irr=0,pa=0,pr=0,h=0,c=0;
+  S.grupos.forEach(g=>{const rec=S.registros[rKey(g.id,mi,y)];if(!rec)return;rec.filas.forEach(f=>{t++;if(f.participo)pa2++;else irr++;if(f.prec_aux)pa++;if(f.prec_reg)pr++;h+=num(f.horas);c+=num(f.cursos);});});
+  S.mesesCerrados[y+'_'+MK[mi]+'_data']={total:t,part:pa2,activos:pa2,irregulares:irr,pa,pr,horas:h,cursos:c};
+  save();renderAdmin();
+}
+function rResumenCerrado(mi,y){
+  const d=S.mesesCerrados[y+'_'+MK[mi]+'_data'];if(!d)return'';
+  return`<div class="mgrid">
+    <div class="metric"><div class="l">Total</div><div class="v">${d.total}</div></div>
+    <div class="metric"><div class="l">Informaron</div><div class="v" style="color:var(--c3)">${d.part}</div></div>
+    <div class="metric"><div class="l">Activos</div><div class="v" style="color:var(--c3)">${d.activos}</div></div>
+    <div class="metric"><div class="l">Irregulares</div><div class="v" style="color:var(--c2)">${d.irregulares}</div></div>
+    <div class="metric"><div class="l">P.Aux.</div><div class="v">${d.pa}</div></div>
+    <div class="metric"><div class="l">P.Reg.</div><div class="v">${d.pr}</div></div>
+    <div class="metric"><div class="l">Horas prec.</div><div class="v">${d.horas}</div></div>
+    <div class="metric"><div class="l">Cursos</div><div class="v">${d.cursos}</div></div>
+  </div>`;
+}
+function inic(n){return(n||'?').split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase();}
+function cargoC(c){return({anciano:'Anciano',siervo:'Siervo',precursor_regular:'P.Regular',precursor_especial:'P.Especial',misionero:'Misionero'})[c]||c;}
+function num(v){return Number(v||0);}
+
+render();
+</script>
